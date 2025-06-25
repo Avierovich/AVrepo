@@ -26,16 +26,25 @@ A comprehensive web application that automatically scrapes and aggregates influe
 
 3. **Start the Application**
    ```bash
-   # Start the backend server
-   npm run server
-
-   # In another terminal, start the frontend
-   npm run dev
+   # Start both backend and frontend together
+   npm start
    ```
 
 4. **Access the Application**
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:3001
+
+## Alternative Start Methods
+
+If you prefer to run the servers separately:
+
+```bash
+# Start the backend server
+npm run server
+
+# In another terminal, start the frontend
+npm run dev
+```
 
 ## Google Sheets Setup
 
