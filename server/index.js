@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cron from 'node-cron';
 import { scrapeInfluencers } from './scrapers/index.js';
 import { exportToGoogleSheets } from './services/googleSheets.js';
-import { getInfluencers, saveInfluencer, getStats } from './database/index.js';
+import { getInfluencers, saveInfluencer, getStats, clearDatabase } from './database/index.js';
 
 dotenv.config();
 
@@ -14,22 +14,13 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// In-memory storage for demo (replace with actual database)
-let influencersData = [];
-let scrapingStats = {
-  total: 0,
-  tiktok: 0,
-  youtube: 0,
-  lastScrape: null
-};
-
 // API Routes
 app.get('/api/influencers', (req, res) => {
-  res.json(influencersData);
+  res.json(getInfluencers());
 });
 
 app.get('/api/stats', (req, res) => {
-  res.json(scrapingStats);
+  res.json(getStats());
 });
 
 app.post('/api/scrape/start', async (req, res) => {
@@ -137,13 +128,10 @@ app.post('/api/scrape/start', async (req, res) => {
 
     // Simulate async scraping
     setTimeout(() => {
-      influencersData = sampleInfluencers;
-      scrapingStats = {
-        total: sampleInfluencers.length,
-        tiktok: sampleInfluencers.filter(inf => inf.platform === 'tiktok').length,
-        youtube: sampleInfluencers.filter(inf => inf.platform === 'youtube').length,
-        lastScrape: new Date().toISOString()
-      };
+      clearDatabase();
+      sampleInfluencers.forEach(influencer => {
+        saveInfluencer(influencer);
+      });
     }, 2000);
 
     res.json({ message: 'Scraping started successfully' });
@@ -155,7 +143,7 @@ app.post('/api/scrape/start', async (req, res) => {
 
 app.post('/api/export/sheets', async (req, res) => {
   try {
-    const { influencers } = req.body;
+    const influencers = getInfluencers();
     
     if (!process.env.GOOGLE_SHEETS_CREDENTIALS) {
       return res.status(400).json({ 

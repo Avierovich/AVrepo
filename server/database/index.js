@@ -1,8 +1,6 @@
-// Simple in-memory database for demo
-// In production, use a proper database like PostgreSQL, MongoDB, etc.
-
-let influencersDB = [];
-let statsDB = {
+// In-memory storage for demo (replace with actual database)
+let influencersData = [];
+let scrapingStats = {
   total: 0,
   tiktok: 0,
   youtube: 0,
@@ -10,41 +8,38 @@ let statsDB = {
 };
 
 export function getInfluencers() {
-  return influencersDB;
+  return influencersData;
 }
 
 export function saveInfluencer(influencer) {
-  const existingIndex = influencersDB.findIndex(
-    inf => inf.handle === influencer.handle && inf.platform === influencer.platform
-  );
-  
+  const existingIndex = influencersData.findIndex(inf => inf.id === influencer.id);
   if (existingIndex >= 0) {
-    influencersDB[existingIndex] = { ...influencersDB[existingIndex], ...influencer };
+    influencersData[existingIndex] = influencer;
   } else {
-    influencersDB.push(influencer);
+    influencersData.push(influencer);
   }
-  
   updateStats();
-  return influencer;
 }
 
 export function getStats() {
-  return statsDB;
-}
-
-function updateStats() {
-  statsDB.total = influencersDB.length;
-  statsDB.tiktok = influencersDB.filter(inf => inf.platform === 'tiktok').length;
-  statsDB.youtube = influencersDB.filter(inf => inf.platform === 'youtube').length;
-  statsDB.lastScrape = new Date().toISOString();
+  return scrapingStats;
 }
 
 export function clearDatabase() {
-  influencersDB = [];
-  statsDB = {
+  influencersData = [];
+  scrapingStats = {
     total: 0,
     tiktok: 0,
     youtube: 0,
     lastScrape: null
+  };
+}
+
+function updateStats() {
+  scrapingStats = {
+    total: influencersData.length,
+    tiktok: influencersData.filter(inf => inf.platform === 'tiktok').length,
+    youtube: influencersData.filter(inf => inf.platform === 'youtube').length,
+    lastScrape: new Date().toISOString()
   };
 }
